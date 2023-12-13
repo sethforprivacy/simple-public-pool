@@ -10,7 +10,8 @@ prune=5000
 server=1
 # Bind to given address to listen for JSON-RPC connections. This option is ignored unless -rpcallowip is also passed. Port is optional and overrides -rpcport. Use [host]:port notation for IPv6. This option can be specified multiple times. (default: 127.0.0.1 and ::1 i.e., localhost)
 rpcbind=0.0.0.0
-# Username and hashed password for JSON-RPC connections. The field <userpw> comes in the format: <USERNAME>:<SALT>$<HASH>. RPC clients connect using rpcuser=<USERNAME>/rpcpassword=<PASSWORD> arguments. You can generate this value at https://jlopp.github.io/bitcoin-core-rpc-auth-generator/. This option can be specified multiple times.
+
+# Replace user and password with a securely generated and stored password
 rpcuser=bitcoin
 rpcpassword=bitcoin
 whitelist=172.16.0.0/12
@@ -21,4 +22,5 @@ disablewallet=1
 
 # [zeromq]
 # Enable publishing of raw block hex to <address>.
+# Necessary for your pool to properly receive new block updates.
 zmqpubrawblock=0.0.0.0:3000
