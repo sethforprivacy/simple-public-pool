@@ -62,7 +62,7 @@ services:
     image: ghcr.io/sethforprivacy:latest
     restart: unless-stopped
     environment:
-        - DOMAIN=pool.sethforprivacy.com
+        - DOMAIN=REPLACE_ME
     labels:
         - "traefik.enable=true"
         - "traefik.http.routers.public-pool-ui.rule=Host(`REPLACE_ME`)"
