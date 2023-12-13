@@ -1,0 +1,73 @@
+version: '3.8'
+services:
+  traefik:
+    image: "traefik:latest"
+    container_name: "traefik"
+    restart: unless-stopped
+    command:
+       - "--accesslog=false"
+       - "--providers.docker=true"
+       - "--providers.docker.exposedbydefault=false"
+       - "--entrypoints.websecure.address=:443"
+       - "--entrypoints.web.address=:80"
+       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+       - "--certificatesresolvers.selfhostedservices.acme.tlschallenge=true"
+       - "--certificatesresolvers.selfhostedservices.acme.email=${LE_EMAIL_ADDRESS}"
+       - "--certificatesresolvers.selfhostedservices.acme.storage=/letsencrypt/acme.json"
+       - "--providers.file.directory=/config"
+       - "--serversTransport.insecureSkipVerify=true"
+    ports:
+    - target: 80
+        published: 80
+        mode: host
+    - target: 443
+        published: 443
+        mode: host
+    volumes:
+      - "lets-encrypt-data:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  public-pool:
+    container_name: public-pool
+    image: ghcr.io/sethforprivacy/public-pool:latest
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ports:
+      - "0.0.0.0:3333:3333/tcp"
+      - "127.0.0.1:3334:3334/tcp"
+    volumes:
+      - "public-pool-db:/public-pool/DB"
+      - "./pool.env:/public-pool/.env:ro"
+    environment:
+      - NODE_ENV=production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.public-pool-api.rule=Host(`pool.sethforprivacy.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.public-pool-api.tls.certresolver=selfhostedservices"
+      - "traefik.http.routers.public-pool-api.entrypoints=websecure"
+      - "traefik.http.services.public-pool-api.loadbalancer.server.port=3334"
+
+  public-pool-ui:
+    container_name: public-pool-ui
+    image: sethforprivacy/public-pool-ui:latest
+    restart: unless-stopped
+    environment:
+      - DOMAIN=pool.sethforprivacy.com
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.public-pool-ui.rule=Host(`pool.sethforprivacy.com`)"
+      - "traefik.http.routers.public-pool-ui.tls.certresolver=selfhostedservices"
+      - "traefik.http.routers.public-pool-ui.entrypoints=websecure"
+      - "traefik.http.services.public-pool-ui.loadbalancer.server.port=80"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+volumes:
+    lets-encrypt-data:
+    public-pool-db:
