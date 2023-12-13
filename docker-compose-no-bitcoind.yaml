@@ -13,7 +13,7 @@ services:
         - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
         - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
         - "--certificatesresolvers.selfhostedservices.acme.tlschallenge=true"
-        - "--certificatesresolvers.selfhostedservices.acme.email=REPLACEME"
+        - "--certificatesresolvers.selfhostedservices.acme.email=REPLACE_ME"
         - "--certificatesresolvers.selfhostedservices.acme.storage=/letsencrypt/acme.json"
         - "--providers.file.directory=/config"
         - "--serversTransport.insecureSkipVerify=true"
