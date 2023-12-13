@@ -5,37 +5,37 @@ services:
     container_name: "traefik"
     restart: unless-stopped
     command:
-        - "--accesslog=false"
-        - "--providers.docker=true"
-        - "--providers.docker.exposedbydefault=false"
-        - "--entrypoints.websecure.address=:443"
-        - "--entrypoints.web.address=:80"
-        - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-        - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-        - "--certificatesresolvers.selfhostedservices.acme.tlschallenge=true"
-        - "--certificatesresolvers.selfhostedservices.acme.email=REPLACE_ME"
-        - "--certificatesresolvers.selfhostedservices.acme.storage=/letsencrypt/acme.json"
-        - "--serversTransport.insecureSkipVerify=true"
+      - "--accesslog=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.selfhostedservices.acme.tlschallenge=true"
+      - "--certificatesresolvers.selfhostedservices.acme.email=REPLACE_ME"
+      - "--certificatesresolvers.selfhostedservices.acme.storage=/letsencrypt/acme.json"
+      - "--serversTransport.insecureSkipVerify=true"
     ports:
       - target: 80
-          published: 80
-          mode: host
+        published: 80
+        mode: host
       - target: 443
-          published: 443
-          mode: host
+        published: 443
+        mode: host
     volumes:
-        - "lets-encrypt-data:/letsencrypt"
-        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "lets-encrypt-data:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   bitcoind:
     image: ghcr.io/sethforprivacy/bitcoind:latest
     restart: unless-stopped
     container_name: bitcoind
     volumes:
-        - bitcoind-data:/bitcoin/.bitcoin
-        - ./bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf
+      - bitcoind-data:/bitcoin/.bitcoin
+      - ./bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf
     ports:
-        - 8333:8333
+      - 8333:8333
 
   public-pool:
     container_name: public-pool
@@ -43,12 +43,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 30s
     ports:
-        - "0.0.0.0:3333:3333/tcp"
+      - "0.0.0.0:3333:3333/tcp"
     volumes:
-        - "public-pool-db:/public-pool/DB"
-        - "./pool.env:/public-pool/.env:ro"
+      - "public-pool-db:/public-pool/DB"
+      - "./pool.env:/public-pool/.env:ro"
     environment:
-        - NODE_ENV=production
+      - NODE_ENV=production
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.public-pool-api.rule=Host(`REPLACE_ME`) && PathPrefix(`/api`)"
@@ -61,13 +61,13 @@ services:
     image: ghcr.io/sethforprivacy:latest
     restart: unless-stopped
     environment:
-        - DOMAIN=REPLACE_ME
+      - DOMAIN=REPLACE_ME
     labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.public-pool-ui.rule=Host(`REPLACE_ME`)"
-        - "traefik.http.routers.public-pool-ui.tls.certresolver=selfhostedservices"
-        - "traefik.http.routers.public-pool-ui.entrypoints=websecure"
-        - "traefik.http.services.public-pool-ui.loadbalancer.server.port=80"
+      - "traefik.enable=true"
+      - "traefik.http.routers.public-pool-ui.rule=Host(`REPLACE_ME`)"
+      - "traefik.http.routers.public-pool-ui.tls.certresolver=selfhostedservices"
+      - "traefik.http.routers.public-pool-ui.entrypoints=websecure"
+      - "traefik.http.services.public-pool-ui.loadbalancer.server.port=80"
 
   watchtower:
     image: containrrr/watchtower:latest
