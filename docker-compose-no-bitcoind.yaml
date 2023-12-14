@@ -48,7 +48,7 @@ services:
 
   public-pool-ui:
     container_name: public-pool-ui
-    image: ghcr.io/sethforprivacy:latest
+    image: ghcr.io/sethforprivacy/public-pool-ui:latest
     restart: unless-stopped
     environment:
       - DOMAIN=REPLACE_ME
